@@ -6,4 +6,4 @@ include(cmake/Common.cmake)
 
 add_subdirectory(abcg)
 
-add_subdirectory(examples/viewer4)
+add_subdirectory(examples/atividade3)
