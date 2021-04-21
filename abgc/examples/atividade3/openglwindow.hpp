@@ -75,8 +75,9 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   float m_aviao_angulo{0.0f};
   float m_aviaoAnguloR{0.0f};
   glm::mat4 m_aviao_velocidade{1.0f};
+  float m_aviao_anguloRotacaoPadrao{2.5f};
 
-  bool m_aviaoCameraCinematica = false;
+  int m_aviaoCameraCinematica = 0;
 
   // Skybox
   const std::string m_skyShaderName{"skybox"};
