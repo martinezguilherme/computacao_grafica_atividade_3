@@ -18,19 +18,32 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
     if (event.key.keysym.sym == SDLK_w){
       m_aviao_vertical += 0.001f;
       m_aviao_vetor_velocidade[1] += 0.001f;
-      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(10.0f), glm::vec3(1, 0, 0));
+      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(5.0f), glm::vec3(1, 0, 0));
     }
     if (event.key.keysym.sym == SDLK_s){
       m_aviao_vetor_velocidade[1] -= 0.001f;
-      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(10.0f), glm::vec3(-1, 0, 0));
+      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(5.0f), glm::vec3(-1, 0, 0));
+    }
+    if (event.key.keysym.sym == SDLK_q){
+      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(5.0f), glm::vec3(0, 1, 0));
+    }
+    if (event.key.keysym.sym == SDLK_e){
+      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(5.0f), glm::vec3(0, -1, 0));
     }
     if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a){
-      m_aviao_vetor_velocidade[0] -= 0.001f; 
-      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(5.0f), glm::vec3(0, -1, 0));
+      m_aviao_vetor_velocidade[0] -= 0.001f;
+      m_aviao_angulo += 5.0f;
+
+      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(5.0f), glm::vec3(0, 0, 1));
     }
     if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d){
       m_aviao_vetor_velocidade[0] -= 0.001f;
-      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(5.0f), glm::vec3(0, 1, 0));
+      if (m_aviao_angulo < 0){
+        m_aviao_angulo = 360;
+      }
+      m_aviao_angulo -= 5.0f;
+      // m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(5.0f), glm::vec3(0, 1, 0));
+      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(5.0f), glm::vec3(0, 0, -1));
     }
     if (event.key.keysym.sym == SDLK_UP){
       m_aviao_vetor_velocidade[2] += 0.001f;
@@ -40,6 +53,10 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
     }
       
   }
+  // Habilita e desabilita camera cinematica
+  if (event.key.keysym.sym == SDLK_c && event.type == SDL_KEYDOWN){
+      m_aviaoCameraCinematica = not m_aviaoCameraCinematica;
+    }
 
 
   if (event.type == SDL_MOUSEMOTION) {
@@ -96,9 +113,9 @@ void OpenGLWindow::initializeGL() {
 
   m_modelMatrix = glm::scale(m_modelMatrix, glm::vec3(0.3f));
 
-  m_modelMatrixOriginal = m_modelMatrix;
 
   //m_modelMatrix_cenario = glm::translate(m_modelMatrix_cenario, glm::vec3(-1, 0, 0));
+  m_modelMatrix =  glm::translate(m_modelMatrix, glm::vec3(0, 0, 1));
 
   initializeSkybox();
 }
@@ -583,19 +600,41 @@ void OpenGLWindow::terminateSkybox() {
 
 void OpenGLWindow::update() {
   // m_modelMatrix = m_trackBallModel.getRotation();
+  m_aviaoAnguloR = glm::radians(m_aviao_angulo - 45);
+  float avancox = m_aviao_vetor_velocidade[2]*(cos(m_aviaoAnguloR) - sin(m_aviaoAnguloR));
+  float avancoy = m_aviao_vetor_velocidade[2]*(1*sin(m_aviaoAnguloR) + 1*cos(m_aviaoAnguloR));
 
-  m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(0.0f , m_aviao_vetor_velocidade[2], m_aviao_vetor_velocidade[1]));
+  avancoy = 0;
+  avancox = m_aviao_vetor_velocidade[2];
+  m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(
+    -avancoy,
+    avancox,
+    0));
+  //printf("velocidade x: %f\n velocidade y: %f\n angulo: %f\n", avancox, avancoy, m_aviao_angulo);
+  //m_modelMatrix[3][0] = m_modelMatrix[3][0]*cos(0.1f) - m_modelMatrix[3][2]*sin(0.1f);   
+  //m_modelMatrix[3][2] = m_modelMatrix[3][0]*sin(0.1f) + m_modelMatrix[3][2]*cos(0.1f);
+
+
+  //m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(sin(m_aviao_angulo)*m_aviao_vetor_velocidade[2], //m_aviao_vetor_velocidade[2], m_aviao_vetor_velocidade[1]));
 
   // m_eyePosition = glm::vec3(m_aviao_vertical * 100, m_aviao_lados * 100, 2.0f  + m_zoom);
-  m_eyePosition = glm::vec3(m_modelMatrix[3][0], m_modelMatrix[3][1], m_modelMatrix[3][2] - 0.7f + m_zoom);
+  float m_posCameraX = (m_modelMatrix[3][2] - 0.7f)*(cos(m_aviaoAnguloR) - sin(m_aviaoAnguloR));
+  float m_posCameraY = -(m_modelMatrix[3][0]) * (1*sin(m_aviaoAnguloR) + 1*cos(m_aviaoAnguloR));
 
+  //TESTE, SUBSTITUIR POR M_EYEPOSITION PARA VOLTAR AO NORMAL
+  m_eyePosition = glm::vec3(m_posCameraY, m_modelMatrix[3][1], m_posCameraX);
 
-  // m_viewMatrix = glm::lookAt(m_eyePosition, glm::vec3(0.0f, 0.0f, 0.0f),
-  //                             glm::vec3(0.0f, 1.0f, 0.0f));
+  glm::vec3 m_posicaoCamera(0, 0, 2.0f  + m_zoom);
+  if (m_aviaoCameraCinematica){
+    m_posicaoCamera = m_eyePosition;
+  }
 
   glm::vec3 m_posicao_aviao = glm::vec3(m_modelMatrix[3][0], m_modelMatrix[3][1], m_modelMatrix[3][2]);
 
-  m_viewMatrix = glm::lookAt(m_eyePosition, m_posicao_aviao,
+  // m_viewMatrix = glm::lookAt(m_eyePosition, m_posicao_aviao,
+  //                             glm::vec3(0.0f, 1.0f, 0.0f));
+  //cameraPosition = glm::vec3(0, 0, -2.0f);
+  m_viewMatrix = glm::lookAt(m_posicaoCamera, m_posicao_aviao,
                               glm::vec3(0.0f, 1.0f, 0.0f));
 
   // m_viewMatrix = glm::lookAt(m_eyePosition, glm::vec3(m_modelMatrix[3][0], m_modelMatrix[3][1], m_modelMatrix[3][2]),

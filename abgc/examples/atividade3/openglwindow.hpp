@@ -72,6 +72,11 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   // Avião
   glm::vec3 m_aviao_vetor_velocidade{0.0f, 0.0f, 0.0f};
+  float m_aviao_angulo{0.0f};
+  float m_aviaoAnguloR{0.0f};
+  glm::mat4 m_aviao_velocidade{1.0f};
+
+  bool m_aviaoCameraCinematica = false;
 
   // Skybox
   const std::string m_skyShaderName{"skybox"};
