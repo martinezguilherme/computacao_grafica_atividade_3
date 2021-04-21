@@ -2,6 +2,8 @@
 #define OPENGLWINDOW_HPP_
 
 #include <string_view>
+#include <cstdlib>
+#include <iostream>
 
 #include "abcg.hpp"
 #include "model.hpp"
@@ -70,6 +72,10 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::vec4 m_Ks_cenario;
   float m_shininess_cenario{};
 
+  // Cenário
+  int m_vetorPosicoesAleatorias[12];
+  
+
   // Avião
   glm::vec3 m_aviao_vetor_velocidade{0.0f, 0.0f, 0.0f};
   float m_aviao_angulo{0.0f};
@@ -110,7 +116,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   void initializeSkybox();
   void renderSkybox();
-  void renderCenario();
+  void renderCenario(glm:: vec3 m_deslocamento);
   void terminateSkybox();
   void loadModel(std::string_view path);
   void carregarCenario(std::string_view path);

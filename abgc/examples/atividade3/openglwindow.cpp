@@ -49,10 +49,10 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
       m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, -1));
     }
     if (event.key.keysym.sym == SDLK_UP){
-      m_aviao_vetor_velocidade[2] += 0.01f;
+      m_aviao_vetor_velocidade[2] += 0.08f;
     }
     if (event.key.keysym.sym == SDLK_DOWN){
-      m_aviao_vetor_velocidade[2] -= 0.01f;
+      m_aviao_vetor_velocidade[2] -= 0.08f;
     }
       
   }
@@ -92,6 +92,14 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
 void OpenGLWindow::initializeGL() {
   glClearColor(0, 0, 0, 1);
   glEnable(GL_DEPTH_TEST);
+
+
+  for (int i = 0; i < 12; i++)
+  {
+    int numeroAleatorio = (std::rand() % 10) - 5;
+    printf("Número aleatório: %d", numeroAleatorio);
+    m_vetorPosicoesAleatorias[i] = numeroAleatorio;
+  }
 
   // Create programs
   for (const auto& name : m_shaderNames) {
@@ -244,12 +252,23 @@ void OpenGLWindow::paintGL() {
   glUniform4fv(KsLoc, 1, &m_Ks.x);
   m_model.render(m_trianglesToDraw);
 
-  renderCenario();
+  for (int i = 0; i < 11; i = i + 2)
+  {
+    int entrada1 = m_vetorPosicoesAleatorias[i];
+    int entrada2 = m_vetorPosicoesAleatorias[i+1];
+    renderCenario(glm:: vec3(entrada1, 0.0f, entrada2));
+  }
+  
+
+  // for (float i = -3; i < 3; i++)
+    // for (float j = -3; j < 3; j++)
+      // renderCenario(glm:: vec3(i + m_modelMatrix[3][0] + 2, 0.0f, j + m_modelMatrix[3][2] + 2));
+
   renderSkybox();
 
 }
 
-void OpenGLWindow::renderCenario() {
+void OpenGLWindow::renderCenario(glm:: vec3 m_deslocamento) {
   // Use currently selected program
   const auto program{m_programs.at(m_currentProgramIndex)};
   glUseProgram(program);
@@ -289,6 +308,9 @@ void OpenGLWindow::renderCenario() {
   glUniform4fv(IaLoc, 1, &m_Ia.x);
   glUniform4fv(IdLoc, 1, &m_Id.x);
   glUniform4fv(IsLoc, 1, &m_Is.x);
+  glm::mat4 m_modelMatrix_cenario{1.0f};
+  //printf("%f %f %f\n", m_deslocamento[0], m_deslocamento[1], m_deslocamento[2]);
+  m_modelMatrix_cenario = glm::translate(m_modelMatrix_cenario, m_deslocamento);
 
   // Set uniform variables of the current object
   glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix_cenario[0][0]);
@@ -615,14 +637,6 @@ void OpenGLWindow::update() {
     -avancoy,
     avancox,
     0));
-  //printf("velocidade x: %f\n velocidade y: %f\n angulo: %f\n", avancox, avancoy, m_aviao_angulo);
-  //m_modelMatrix[3][0] = m_modelMatrix[3][0]*cos(0.1f) - m_modelMatrix[3][2]*sin(0.1f);   
-  //m_modelMatrix[3][2] = m_modelMatrix[3][0]*sin(0.1f) + m_modelMatrix[3][2]*cos(0.1f);
-
-
-  //m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(sin(m_aviao_angulo)*m_aviao_vetor_velocidade[2], //m_aviao_vetor_velocidade[2], m_aviao_vetor_velocidade[1]));
-
-  // m_eyePosition = glm::vec3(m_aviao_vertical * 100, m_aviao_lados * 100, 2.0f  + m_zoom);
 
   glm::vec3 m_posicao_aviao = glm::vec3(m_modelMatrix[3][0], m_modelMatrix[3][1], m_modelMatrix[3][2]);
 
@@ -648,7 +662,6 @@ void OpenGLWindow::update() {
   m_viewMatrix = glm::lookAt(m_posicaoCamera, m_posicao_aviao,
                               glm::vec3(0.0f, 1.0f, 0.0f));
 
-  printf("%f %f %f %f\n", m_posicao_aviao[0], m_posicao_aviao[1], m_posicao_aviao[2], m_aviao_angulo);
   // m_viewMatrix = glm::lookAt(m_eyePosition, glm::vec3(m_modelMatrix[3][0], m_modelMatrix[3][1], m_modelMatrix[3][2]),
   //                             glm::vec3(0.0f, 1.0f, 0.0f));
 
