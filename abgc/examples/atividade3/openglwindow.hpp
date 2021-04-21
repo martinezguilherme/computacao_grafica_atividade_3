@@ -5,7 +5,6 @@
 
 #include "abcg.hpp"
 #include "model.hpp"
-#include "cenario.hpp"
 #include "trackball.hpp"
 
 class OpenGLWindow : public abcg::OpenGLWindow {
@@ -29,16 +28,13 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   TrackBall m_trackBallModel;
   TrackBall m_trackBallLight;
 
-  GLuint m_objectsProgram{};
-
-  Cenario m_cenario;
-
   float m_zoom{};
 
   float m_aviao_lados, m_aviao_vertical{};
 
   glm::vec3 m_eyePosition{};
   glm::mat4 m_modelMatrix{1.0f};
+  glm::mat4 m_modelMatrixOriginal{1.0f};
   glm::mat4 m_modelMatrix_cenario{1.0f};
   glm::mat4 m_viewMatrix{1.0f};
   glm::mat4 m_projMatrix{1.0f};
@@ -73,6 +69,9 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::vec4 m_Kd_cenario;
   glm::vec4 m_Ks_cenario;
   float m_shininess_cenario{};
+
+  // Avião
+  glm::vec3 m_aviao_vetor_velocidade{0.0f, 0.0f, 0.0f};
 
   // Skybox
   const std::string m_skyShaderName{"skybox"};
