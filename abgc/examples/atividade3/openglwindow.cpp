@@ -12,15 +12,10 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
 
   // Keyboard events
   if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-    // if (event.key.keysym.sym == SDLK_SPACE)
-      // m_Entrada.m_input.set(static_cast<size_t>(Input::Espaco));
     if (event.key.keysym.sym == SDLK_w){
-      m_aviao_vertical += 0.001f;
-      m_aviao_vetor_velocidade[1] += 0.001f;
       m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(1, 0, 0));
     }
     if (event.key.keysym.sym == SDLK_s){
-      m_aviao_vetor_velocidade[1] -= 0.001f;
       m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(-1, 0, 0));
     }
     if (event.key.keysym.sym == SDLK_q){
@@ -30,7 +25,6 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
       m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, -1, 0));
     }
     if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a){
-      m_aviao_vetor_velocidade[0] -= 0.001f;
       if (m_aviao_angulo >= 360){
         m_aviao_angulo = 0;
       }
@@ -39,19 +33,17 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
       m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, 1));
     }
     if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d){
-      m_aviao_vetor_velocidade[0] -= 0.001f;
       if (m_aviao_angulo < 0){
         m_aviao_angulo = 360;
       }
       m_aviao_angulo -= m_aviao_anguloRotacaoPadrao;
-      // m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(5.0f), glm::vec3(0, 1, 0));
       m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, -1));
     }
     if (event.key.keysym.sym == SDLK_UP){
-      m_aviao_vetor_velocidade[2] += 0.08f;
+      m_aviaoVelocidade += 0.08f;
     }
     if (event.key.keysym.sym == SDLK_DOWN){
-      m_aviao_vetor_velocidade[2] -= 0.08f;
+      m_aviaoVelocidade -= 0.08f;
     }
       
   }
@@ -460,15 +452,12 @@ void OpenGLWindow::terminateSkybox() {
 
 void OpenGLWindow::update() {
   float deltaTime{static_cast<float>(getDeltaTime())};
-  // m_modelMatrix = m_trackBallModel.getRotation();
   m_aviaoAnguloR = glm::radians(m_aviao_angulo - 45);
-  float avancox = m_aviao_vetor_velocidade[2]*(cos(m_aviaoAnguloR) - sin(m_aviaoAnguloR));
-  float avancoy = m_aviao_vetor_velocidade[2]*(1*sin(m_aviaoAnguloR) + 1*cos(m_aviaoAnguloR));
+  float avancox = m_aviaoVelocidade*(cos(m_aviaoAnguloR) - sin(m_aviaoAnguloR));
 
-  avancoy = 0;
-  avancox = m_aviao_vetor_velocidade[2]*deltaTime;
+  avancox = m_aviaoVelocidade*deltaTime;
   m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(
-    -avancoy,
+    0,
     avancox,
     0));
 
@@ -496,7 +485,5 @@ void OpenGLWindow::update() {
   m_viewMatrix = glm::lookAt(m_posicaoCamera, m_posicao_aviao,
                               glm::vec3(0.0f, 1.0f, 0.0f));
 
-  // m_viewMatrix = glm::lookAt(m_eyePosition, glm::vec3(m_modelMatrix[3][0], m_modelMatrix[3][1], m_modelMatrix[3][2]),
-  //                             glm::vec3(0.0f, 1.0f, 0.0f));
 
 }
