@@ -10,43 +10,49 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
   glm::ivec2 mousePosition;
   SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
 
-  // Keyboard events
-  if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-    if (event.key.keysym.sym == SDLK_w){
-      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(1, 0, 0));
-    }
-    if (event.key.keysym.sym == SDLK_s){
-      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(-1, 0, 0));
-    }
-    if (event.key.keysym.sym == SDLK_q){
-      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 1, 0));
-    }
-    if (event.key.keysym.sym == SDLK_e){
-      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, -1, 0));
-    }
-    if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a){
-      if (m_aviao_angulo >= 360){
-        m_aviao_angulo = 0;
+  if (m_aviaoVelocidade > 0){  // Keyboard events
+    if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+      if (event.key.keysym.sym == SDLK_w){
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(1, 0, 0));
       }
-      m_aviao_angulo += m_aviao_anguloRotacaoPadrao;
+      if (event.key.keysym.sym == SDLK_s){
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(-1, 0, 0));
+      }
+      if (event.key.keysym.sym == SDLK_q){
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 1, 0));
+      }
+      if (event.key.keysym.sym == SDLK_e){
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, -1, 0));
+      }
+      if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a){
+        if (m_aviao_angulo >= 360){
+          m_aviao_angulo = 0;
+        }
+        m_aviao_angulo += m_aviao_anguloRotacaoPadrao;
 
-      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, 1));
-    }
-    if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d){
-      if (m_aviao_angulo < 0){
-        m_aviao_angulo = 360;
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, 1));
       }
-      m_aviao_angulo -= m_aviao_anguloRotacaoPadrao;
-      m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, -1));
-    }
-    if (event.key.keysym.sym == SDLK_UP){
-      m_aviaoVelocidade += 0.08f;
-    }
-    if (event.key.keysym.sym == SDLK_DOWN){
-      m_aviaoVelocidade -= 0.08f;
-    }
+      if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d){
+        if (m_aviao_angulo < 0){
+          m_aviao_angulo = 360;
+        }
+        m_aviao_angulo -= m_aviao_anguloRotacaoPadrao;
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, -1));
+      }
       
+    }
   }
+  if (event.key.keysym.sym == SDLK_UP){
+    m_aviaoVelocidade += 0.08f;
+  }
+  if (event.key.keysym.sym == SDLK_DOWN){
+      m_aviaoVelocidade -= 0.08f;
+      if (m_aviaoVelocidade < 0)
+        m_aviaoVelocidade = 0;
+  }
+    
+      
+  
   // Muda tipo de camera
   if (event.key.keysym.sym == SDLK_c && event.type == SDL_KEYDOWN){
       m_aviaoCameraCinematica += 1;
@@ -427,6 +433,23 @@ void OpenGLWindow::paintUI() {
                   static_cast<float>(m_viewportHeight)};
   m_projMatrix =
             glm::perspective(glm::radians(45.0f), aspect, 0.1f, 5.0f);
+  {
+    auto size{ImVec2(300, 200)};
+    auto position{ImVec2((m_viewportWidth - size.x) / 2.0f,
+                         (m_viewportHeight - size.y) / 0.85f)};
+    ImGui::SetNextWindowPos(position);
+    ImGui::SetNextWindowSize(size);
+    ImGuiWindowFlags flags{ImGuiWindowFlags_NoBackground |
+                           ImGuiWindowFlags_NoTitleBar };
+    ImGui::Begin(" ", nullptr, flags);
+    
+    ImGui::Text("Velocidade avião: %.1f", m_aviaoVelocidade*10);
+    ImGui::Text("Altitude avião: %.1f", (m_modelMatrix[3][1] + 1.5f) * 100);
+    
+    ImGui::Text("Aperte 'c' para trocar entre as cameras");
+
+    ImGui::End();
+  }
 }
 
 void OpenGLWindow::resizeGL(int width, int height) {
