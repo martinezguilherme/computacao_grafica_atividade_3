@@ -24,8 +24,10 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   Model m_model;
   Model m_cenario3d;
+  Model m_cidade3d;
   int m_trianglesToDraw{};
   int m_trianglesToDraw_cenario{};
+  int m_trianglesToDraw_cidade{};
 
   TrackBall m_trackBallModel;
   TrackBall m_trackBallLight;
@@ -38,6 +40,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::mat4 m_modelMatrix{1.0f};
   glm::mat4 m_modelMatrixOriginal{1.0f};
   glm::mat4 m_modelMatrix_cenario{1.0f};
+  glm::mat4 m_modelMatrix_cidade{1.0f};
   glm::mat4 m_viewMatrix{1.0f};
   glm::mat4 m_projMatrix{1.0f};
 
@@ -71,6 +74,16 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::vec4 m_Kd_cenario;
   glm::vec4 m_Ks_cenario;
   float m_shininess_cenario{};
+
+  // Luz e materiais cidade
+  glm::vec4 m_lightDir_cidade{-1.0f, -1.0f, -1.0f, 0.0f};
+  glm::vec4 m_Ia_cidade{1.0f};
+  glm::vec4 m_Id_cidade{1.0f};
+  glm::vec4 m_Is_cidade{1.0f};
+  glm::vec4 m_Ka_cidade;
+  glm::vec4 m_Kd_cidade;
+  glm::vec4 m_Ks_cidade;
+  float m_shininess_cidade{};
 
   // Cenário
   int m_vetorPosicoesAleatorias[12];
@@ -117,9 +130,11 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void initializeSkybox();
   void renderSkybox();
   void renderCenario(glm:: vec3 m_deslocamento);
+  void renderCidade(glm:: vec3 m_deslocamento);
   void terminateSkybox();
   void loadModel(std::string_view path);
   void carregarCenario(std::string_view path);
+  void carregarCidade(std::string_view path);
   void update();
 };
 

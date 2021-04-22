@@ -111,6 +111,7 @@ void OpenGLWindow::initializeGL() {
   // Load default model
   carregarCenario(getAssetsPath() + "Street environment_V01.obj");
   loadModel(getAssetsPath() + "11805_airplane_v2_L2.obj");
+  carregarCidade(getAssetsPath() + "Camellia City.obj");
 
   // Load cubemap
   m_model.loadCubeTexture(getAssetsPath() + "maps/cube/");
@@ -165,7 +166,7 @@ void OpenGLWindow::initializeSkybox() {
 }
 
 void OpenGLWindow::loadModel(std::string_view path) {
-  m_model.loadDiffuseTexture(getAssetsPath() + "maps/roman_lamp_diffuse.jpg");
+  m_model.loadDiffuseTexture(getAssetsPath() + "maps/airplane_body_diffuse_v1.jpg");
   m_model.loadNormalTexture(getAssetsPath() + "maps/airplane_body_diffuse_v1.jpg");
   m_model.loadFromFile(path);
   m_model.setupVAO(m_programs.at(m_currentProgramIndex));
@@ -181,7 +182,7 @@ void OpenGLWindow::loadModel(std::string_view path) {
 
 void OpenGLWindow::carregarCenario(std::string_view path) {
   m_cenario3d.loadDiffuseTexture(getAssetsPath() + "maps/textures/Building_V02_C.png");
-  m_cenario3d.loadNormalTexture(getAssetsPath() + "maps/pattern_normal.png");
+  m_cenario3d.loadNormalTexture(getAssetsPath() + "maps/textures/Building_V02_C.png");
   m_cenario3d.loadFromFile(path);
   m_cenario3d.setupVAO(m_programs.at(m_currentProgramIndex));
   m_trianglesToDraw_cenario = m_cenario3d.getNumTriangles();
@@ -191,6 +192,20 @@ void OpenGLWindow::carregarCenario(std::string_view path) {
   m_Kd = m_cenario3d.getKd();
   m_Ks = m_cenario3d.getKs();
   m_shininess = m_cenario3d.getShininess();
+}
+
+void OpenGLWindow::carregarCidade(std::string_view path) {
+  m_cidade3d.loadDiffuseTexture(getAssetsPath() + "maps/cidade_nortuna.jpg");
+  m_cidade3d.loadNormalTexture(getAssetsPath() + "maps/cidade_nortuna.png");
+  m_cidade3d.loadFromFile(path);
+  m_cidade3d.setupVAO(m_programs.at(m_currentProgramIndex));
+  m_trianglesToDraw_cidade = m_cidade3d.getNumTriangles();
+
+  // Use material properties from the loaded model
+  m_Ka = m_cidade3d.getKa();
+  m_Kd = m_cidade3d.getKd();
+  m_Ks = m_cidade3d.getKs();
+  m_shininess = m_cidade3d.getShininess();
 }
 
 void OpenGLWindow::paintGL() {
@@ -256,14 +271,11 @@ void OpenGLWindow::paintGL() {
   {
     int entrada1 = m_vetorPosicoesAleatorias[i];
     int entrada2 = m_vetorPosicoesAleatorias[i+1];
-    renderCenario(glm:: vec3(entrada1, 0.0f, entrada2));
+    renderCenario(glm:: vec3(entrada1, -1.0f, entrada2));
   }
+
+  renderCidade(glm:: vec3(0.0f, 0.0f, 0.0f));
   
-
-  // for (float i = -3; i < 3; i++)
-    // for (float j = -3; j < 3; j++)
-      // renderCenario(glm:: vec3(i + m_modelMatrix[3][0] + 2, 0.0f, j + m_modelMatrix[3][2] + 2));
-
   renderSkybox();
 
 }
@@ -324,6 +336,66 @@ void OpenGLWindow::renderCenario(glm:: vec3 m_deslocamento) {
   glUniform4fv(KdLoc, 1, &m_Kd.x);
   glUniform4fv(KsLoc, 1, &m_Ks.x);
   m_cenario3d.render(m_trianglesToDraw);
+}
+
+
+void OpenGLWindow::renderCidade(glm:: vec3 m_deslocamento) {
+  // Use currently selected program
+  const auto program{m_programs.at(m_currentProgramIndex)};
+  glUseProgram(program);
+
+  // Get location of uniform variables
+  GLint viewMatrixLoc{glGetUniformLocation(program, "viewMatrix")};
+  GLint projMatrixLoc{glGetUniformLocation(program, "projMatrix")};
+  GLint modelMatrixLoc{glGetUniformLocation(program, "modelMatrix")};
+  GLint normalMatrixLoc{glGetUniformLocation(program, "normalMatrix")};
+  GLint lightDirLoc{glGetUniformLocation(program, "lightDirWorldSpace")};
+  GLint shininessLoc{glGetUniformLocation(program, "shininess")};
+  GLint IaLoc{glGetUniformLocation(program, "Ia")};
+  GLint IdLoc{glGetUniformLocation(program, "Id")};
+  GLint IsLoc{glGetUniformLocation(program, "Is")};
+  GLint KaLoc{glGetUniformLocation(program, "Ka")};
+  GLint KdLoc{glGetUniformLocation(program, "Kd")};
+  GLint KsLoc{glGetUniformLocation(program, "Ks")};
+  GLint diffuseTexLoc{glGetUniformLocation(program, "diffuseTex")};
+  GLint normalTexLoc{glGetUniformLocation(program, "normalTex")};
+  GLint cubeTexLoc{glGetUniformLocation(program, "cubeTex")};
+  GLint mappingModeLoc{glGetUniformLocation(program, "mappingMode")};
+  GLint texMatrixLoc{glGetUniformLocation(program, "texMatrix")};
+
+  // Set uniform variables used by every scene object
+  glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
+  glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
+  glUniform1i(diffuseTexLoc, 0);
+  glUniform1i(normalTexLoc, 1);
+  glUniform1i(cubeTexLoc, 2);
+  glUniform1i(mappingModeLoc, m_mappingMode);
+
+  glm::mat3 texMatrix{m_trackBallLight.getRotation()};
+  glUniformMatrix3fv(texMatrixLoc, 1, GL_TRUE, &texMatrix[0][0]);
+
+  auto lightDirRotated{m_trackBallLight.getRotation() * m_lightDir};
+  glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
+  glUniform4fv(IaLoc, 1, &m_Ia.x);
+  glUniform4fv(IdLoc, 1, &m_Id.x);
+  glUniform4fv(IsLoc, 1, &m_Is.x);
+  glm::mat4 m_modelMatrix_cidade{1.0f};
+  //printf("%f %f %f\n", m_deslocamento[0], m_deslocamento[1], m_deslocamento[2]);
+  m_modelMatrix_cidade = glm::translate(m_modelMatrix_cidade, m_deslocamento);
+  m_modelMatrix_cidade = glm::scale(m_modelMatrix_cidade, glm::vec3(10,10,10));
+
+  // Set uniform variables of the current object
+  glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix_cidade[0][0]);
+
+  auto modelViewMatrix{glm::mat3(m_viewMatrix * m_modelMatrix_cidade)};
+  glm::mat3 normalMatrix{glm::inverseTranspose(modelViewMatrix)};
+  glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
+
+  glUniform1f(shininessLoc, m_shininess);
+  glUniform4fv(KaLoc, 1, &m_Ka.x);
+  glUniform4fv(KdLoc, 1, &m_Kd.x);
+  glUniform4fv(KsLoc, 1, &m_Ks.x);
+  m_cidade3d.render(m_trianglesToDraw);
 }
 
 void OpenGLWindow::renderSkybox() {
