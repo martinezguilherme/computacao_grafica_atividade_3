@@ -46,8 +46,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   // Shaders
   const std::vector<const char*> m_shaderNames{
-      "cubereflect", "cuberefract", "normalmapping", "texture", "blinnphong",
-      "phong",       "gouraud",     "normal",        "depth"};
+      "texture"};
   std::vector<GLuint> m_programs;
   int m_currentProgramIndex{};
 
@@ -60,9 +59,9 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::vec4 m_Ia{1.0f};
   glm::vec4 m_Id{1.0f};
   glm::vec4 m_Is{1.0f};
-  glm::vec4 m_Ka;
-  glm::vec4 m_Kd;
-  glm::vec4 m_Ks;
+  glm::vec4 m_Ka{1.0f};
+  glm::vec4 m_Kd{1.0f};
+  glm::vec4 m_Ks{1.0f};
   float m_shininess{};
 
   // Light and material properties
@@ -70,9 +69,9 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::vec4 m_Ia_cenario{1.0f};
   glm::vec4 m_Id_cenario{1.0f};
   glm::vec4 m_Is_cenario{1.0f};
-  glm::vec4 m_Ka_cenario;
-  glm::vec4 m_Kd_cenario;
-  glm::vec4 m_Ks_cenario;
+  glm::vec4 m_Ka_cenario{1.0f};
+  glm::vec4 m_Kd_cenario{1.0f};
+  glm::vec4 m_Ks_cenario{1.0f};
   float m_shininess_cenario{};
 
   // Luz e materiais cidade
