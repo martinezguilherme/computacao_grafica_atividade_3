@@ -4,7 +4,7 @@
 
 #include <cppitertools/itertools.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
-
+#include <glm/gtx/string_cast.hpp>
 
 void OpenGLWindow::handleEvent(SDL_Event& event) {
   glm::ivec2 mousePosition;
@@ -12,38 +12,55 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
 
   if (m_aviaoVelocidade > 0){  // Keyboard events
     if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-      if (event.key.keysym.sym == SDLK_w){
+      if (event.key.keysym.sym == SDLK_s){
         m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(1, 0, 0));
       }
-      if (event.key.keysym.sym == SDLK_s){
+      if (event.key.keysym.sym == SDLK_w){
         m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(-1, 0, 0));
       }
-      if (event.key.keysym.sym == SDLK_q){
+      if (event.key.keysym.sym == SDLK_d){
         m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 1, 0));
       }
-      if (event.key.keysym.sym == SDLK_e){
+      if (event.key.keysym.sym == SDLK_a){
         m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, -1, 0));
       }
-      if (event.key.keysym.sym == SDLK_LEFT || event.key.keysym.sym == SDLK_a){
+      if (event.key.keysym.sym == SDLK_q){
         if (m_aviao_angulo >= 360){
           m_aviao_angulo = 0;
         }
-        m_aviao_angulo += m_aviao_anguloRotacaoPadrao;
+        //m_aviao_angulo += m_aviao_anguloRotacaoPadrao;
 
         m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, 1));
       }
-      if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_d){
+      if (event.key.keysym.sym == SDLK_e){
+        if (m_aviao_angulo < 0){
+          m_aviao_angulo = 360;
+        }
+        //m_aviao_angulo -= m_aviao_anguloRotacaoPadrao;
+
+        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, -1));
+      }
+      if (event.key.keysym.sym == SDLK_LEFT){
+        if (m_aviao_angulo < 0){
+          m_aviao_angulo = 360;
+        }
+        m_aviao_angulo += m_aviao_anguloRotacaoPadrao;
+      }
+      if (event.key.keysym.sym == SDLK_RIGHT){
         if (m_aviao_angulo < 0){
           m_aviao_angulo = 360;
         }
         m_aviao_angulo -= m_aviao_anguloRotacaoPadrao;
-        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, -1));
       }
+      
       
     }
   }
   if (event.key.keysym.sym == SDLK_UP){
-    m_aviaoVelocidade += 0.08f;
+    //velocidade maxima
+    if(m_aviaoVelocidade <= 2.4f) {
+      m_aviaoVelocidade += 0.08f;
+    }    
   }
   if (event.key.keysym.sym == SDLK_DOWN){
       m_aviaoVelocidade -= 0.08f;
@@ -56,8 +73,13 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
   // Muda tipo de camera
   if (event.key.keysym.sym == SDLK_c && event.type == SDL_KEYDOWN){
       m_aviaoCameraCinematica += 1;
-      m_aviaoCameraCinematica = m_aviaoCameraCinematica % 3;
+      m_aviaoCameraCinematica = m_aviaoCameraCinematica % 8;
     }
+
+  // Debug
+  if (event.key.keysym.sym == SDLK_m && event.type == SDL_KEYDOWN){
+    std::cout << glm::to_string(m_modelMatrix) << std::endl;
+  }
 
 
   if (event.type == SDL_MOUSEMOTION) {
@@ -87,6 +109,11 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
 }
 
 void OpenGLWindow::initializeGL() {
+
+  terminateGL();
+
+  m_gameData.m_state = State::Playing;
+
   glClearColor(0, 0, 0, 1);
   glEnable(GL_DEPTH_TEST);
 
@@ -368,6 +395,7 @@ void OpenGLWindow::renderCidade(glm:: vec3 m_deslocamento) {
   glUniform1i(cubeTexLoc, 2);
   glUniform1i(mappingModeLoc, m_mappingMode);
 
+
   glm::mat3 texMatrix{m_trackBallLight.getRotation()};
   glUniformMatrix3fv(texMatrixLoc, 1, GL_TRUE, &texMatrix[0][0]);
 
@@ -432,7 +460,7 @@ void OpenGLWindow::paintUI() {
   auto aspect{static_cast<float>(m_viewportWidth) /
                   static_cast<float>(m_viewportHeight)};
   m_projMatrix =
-            glm::perspective(glm::radians(45.0f), aspect, 0.1f, 5.0f);
+            glm::perspective(glm::radians(45.0f), aspect, 0.1f, 20.0f);
   {
     auto size{ImVec2(300, 200)};
     auto position{ImVec2((m_viewportWidth - size.x) / 2.0f,
@@ -444,8 +472,10 @@ void OpenGLWindow::paintUI() {
     ImGui::Begin(" ", nullptr, flags);
     
     ImGui::Text("Velocidade avião: %.1f", m_aviaoVelocidade*10);
+    ImGui::Text("Posicao avião: %.1f %0.1f %0.1f", m_posicao_aviao.x,m_posicao_aviao.y,m_posicao_aviao.z);
     ImGui::Text("Altitude avião: %.1f", (m_modelMatrix[3][1] + 1.5f) * 100);
-    
+    ImGui::Text("Tipo de Camera: %d", m_aviaoCameraCinematica);
+
     ImGui::Text("Aperte 'c' para trocar entre as cameras");
 
     ImGui::End();
@@ -464,6 +494,7 @@ void OpenGLWindow::terminateGL() {
   for (const auto& program : m_programs) {
     glDeleteProgram(program);
   }
+
   terminateSkybox();
 }
 
@@ -473,40 +504,114 @@ void OpenGLWindow::terminateSkybox() {
   glDeleteVertexArrays(1, &m_skyVAO);
 }
 
+void OpenGLWindow::restart() {
+  m_gameData.m_state = State::Playing;
+
+  //implementar jeito de reiniciar o jogo
+  initializeGL();
+}
+
 void OpenGLWindow::update() {
-  float deltaTime{static_cast<float>(getDeltaTime())};
-  m_aviaoAnguloR = glm::radians(m_aviao_angulo - 45);
-  float avancox = m_aviaoVelocidade*(cos(m_aviaoAnguloR) - sin(m_aviaoAnguloR));
 
-  avancox = m_aviaoVelocidade*deltaTime;
-  m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(
-    0,
-    avancox,
-    0));
+  //printf("Posicao do Aviao: %f %f %f", m_posicao_aviao.x,m_posicao_aviao.y,m_posicao_aviao.z);
 
-  glm::vec3 m_posicao_aviao = glm::vec3(m_modelMatrix[3][0], m_modelMatrix[3][1], m_modelMatrix[3][2]);
-
-  // Camera fixa
-  glm::vec3 m_posicaoCamera(0, 0, 2.0f  + m_zoom);
-
-  // Camera cinemática
-  if (m_aviaoCameraCinematica == 2){
-    float m_posCameraX = deltaTime*(m_modelMatrix[3][2] - 0.7f)*(cos(m_aviaoAnguloR) - sin(m_aviaoAnguloR));
-    float m_posCameraY = -deltaTime*(m_modelMatrix[3][0]) * (1*sin(m_aviaoAnguloR) + 1*cos(m_aviaoAnguloR));
-    m_eyePosition = glm::vec3(m_posCameraY, m_modelMatrix[3][1], m_posCameraX);
-    m_posicaoCamera = m_eyePosition;
+  if(m_gameData.m_state != State::Playing && m_restartWaitTimer.elapsed() > 5) {
+    restart();
+    return;
   }
 
-  //Camera segue o avião
+  if(m_gameData.m_state == State::Playing) {
+    checkCollisions();
+  
 
-  if (m_aviaoCameraCinematica == 0){
-    float m_aviaoAnguloEspelhoR = -(m_aviaoAnguloR + glm::radians(135.0f));
+    float deltaTime{static_cast<float>(getDeltaTime())};
+    m_aviaoAnguloR = glm::radians(m_aviao_angulo - 45);
+    //velocidade max 24
 
-    m_posicaoCamera = m_posicao_aviao + glm::vec3(cos(m_aviaoAnguloEspelhoR), 0,sin(m_aviaoAnguloEspelhoR));
+    //Declaracao n servia pra nada
+    //float avancox = m_aviaoVelocidade*(cos(m_aviaoAnguloR) - sin(m_aviaoAnguloR));
+    //avancox = m_aviaoVelocidade*deltaTime;
+    
+    float avancox = m_aviaoVelocidade*deltaTime;
+    
+    m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(
+      0,
+      avancox,
+      0));
+
+    m_posicao_aviao = glm::vec3(m_modelMatrix[3][0], m_modelMatrix[3][1], m_modelMatrix[3][2]);
+
+    // Camera fixa
+    glm::vec3 m_posicaoCamera(0, 0, 2.0f  + m_zoom);
+
+    //Camera segue o avião
+
+    if(m_aviaoCameraCinematica <= 4){
+      if (m_aviaoCameraCinematica == 0){
+        m_posicaoCamera = m_posicao_aviao +
+        glm::vec3(0.4f * m_modelMatrix[2][0], 0.4f * m_modelMatrix[2][1], 0.4f * m_modelMatrix[2][2]) - 
+        glm::vec3(1.5f * m_modelMatrix[1][0], 1.5f * m_modelMatrix[1][1], 1.5f * m_modelMatrix[1][2]);
+      }
+
+      if (m_aviaoCameraCinematica == 1){
+        m_posicaoCamera = m_posicao_aviao - 
+        glm::vec3(1.5f * m_modelMatrix[1][0], 1.5f * m_modelMatrix[1][1], 1.5f * m_modelMatrix[1][2]);
+      }
+  
+      if (m_aviaoCameraCinematica == 2){
+        m_posicaoCamera = m_posicao_aviao + glm::vec3(1.2f * m_modelMatrix[1][0],1.2f * m_modelMatrix[1][1],1.2f * m_modelMatrix[1][2]);
+      }
+
+      if (m_aviaoCameraCinematica == 3){
+        m_posicaoCamera = m_posicao_aviao +
+          glm::vec3(0.5f * m_modelMatrix[0][0],0.5f * m_modelMatrix[0][1],0.5f * m_modelMatrix[0][2]) +
+          glm::vec3(0.5f * m_modelMatrix[2][0],0.5f * m_modelMatrix[2][1],0.5f * m_modelMatrix[2][2]) - 
+          glm::vec3(1.5f * m_modelMatrix[1][0], 1.5f * m_modelMatrix[1][1], 1.5f * m_modelMatrix[1][2]);
+      }
+
+      if (m_aviaoCameraCinematica == 4){
+        m_posicaoCamera = m_posicao_aviao + glm::vec3(1.2f * m_modelMatrix[0][0],1.2f * m_modelMatrix[0][1],1.2f * m_modelMatrix[0][2]);
+      }
+
+      m_viewMatrix = glm::lookAt(m_posicaoCamera, m_posicao_aviao,
+                                glm::vec3(m_modelMatrix[2][0], m_modelMatrix[2][1], m_modelMatrix[2][2]));
+
+    } else {
+      if (m_aviaoCameraCinematica == 5){
+        float m_aviaoAnguloEspelhoR = -(m_aviaoAnguloR + glm::radians(135.0f));
+
+        m_posicaoCamera = m_posicao_aviao + glm::vec3(cos(m_aviaoAnguloEspelhoR), 0,sin(m_aviaoAnguloEspelhoR));
+      }
+
+      // Camera cinemática
+      if (m_aviaoCameraCinematica == 6){
+        float m_posCameraX = deltaTime*(m_modelMatrix[3][2] - 0.7f)*(cos(m_aviaoAnguloR) - sin(m_aviaoAnguloR));
+        float m_posCameraY = -deltaTime*(m_modelMatrix[3][0]) * (1*sin(m_aviaoAnguloR) + 1*cos(m_aviaoAnguloR));
+        m_eyePosition = glm::vec3(m_posCameraY, m_modelMatrix[3][1], m_posCameraX);
+        m_posicaoCamera = m_eyePosition;
+      }
+
+      m_viewMatrix = glm::lookAt(m_posicaoCamera, m_posicao_aviao,
+                                  glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+
+    
+
+    
 
   }
-  m_viewMatrix = glm::lookAt(m_posicaoCamera, m_posicao_aviao,
-                              glm::vec3(0.0f, 1.0f, 0.0f));
+}
 
+void OpenGLWindow::checkCollisions() {
+
+  //if there was a collision start timer and restart the game
+
+  //collision with ground
+  if(m_posicao_aviao.y < -1.5f){
+    m_gameData.m_state = State::GameOver;
+    m_restartWaitTimer.restart();
+  }
+
+  //collision with asteroid
 
 }

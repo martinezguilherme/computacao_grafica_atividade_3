@@ -5,7 +5,10 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <random>
+
 #include "abcg.hpp"
+#include "gamedata.hpp"
 #include "model.hpp"
 #include "trackball.hpp"
 
@@ -22,6 +25,8 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   int m_viewportWidth{};
   int m_viewportHeight{};
 
+  GameData m_gameData;
+
   Model m_model;
   Model m_cenario3d;
   Model m_cidade3d;
@@ -32,10 +37,11 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   TrackBall m_trackBallModel;
   TrackBall m_trackBallLight;
 
+  abcg::ElapsedTimer m_restartWaitTimer;
+
   float m_zoom{};
 
   float m_aviao_lados, m_aviao_vertical{};
-
   glm::vec3 m_eyePosition{};
   glm::mat4 m_modelMatrix{1.0f};
   glm::mat4 m_modelMatrixOriginal{1.0f};
@@ -92,10 +98,16 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   float m_aviaoVelocidade{0.0f};
   float m_aviao_angulo{0.0f};
   float m_aviaoAnguloR{0.0f};
+  glm::vec3 m_posicao_aviao;
   glm::mat4 m_aviao_velocidade{1.0f};
   float m_aviao_anguloRotacaoPadrao{2.5f};
 
   int m_aviaoCameraCinematica = 0;
+
+  // Asteroides
+  //int const qtd_asteroides = 20;
+  float const m_velocidadeAsteroides = 0.5f;
+  glm::vec3 m_asteroides[5];
 
   // Skybox
   const std::string m_skyShaderName{"skybox"};
@@ -134,7 +146,9 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void loadModel(std::string_view path);
   void carregarCenario(std::string_view path);
   void carregarCidade(std::string_view path);
+  void checkCollisions();
   void update();
+  void restart();
 };
 
 #endif
