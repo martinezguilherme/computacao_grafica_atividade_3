@@ -1,5 +1,8 @@
-# computacao_grafica-atividade1
+# computacao_grafica-atividade3
+Atividade 3 de computação gráfica.
+
 Controles:
+    
     Up e Down: Aumenta e diminui a velocidade do avião respectivamente.
     W e S: Inclina o avião para baixo/cima.
     A e D: Rotaciona o avião em torno de seu eixo principal para esquerda/direita.
