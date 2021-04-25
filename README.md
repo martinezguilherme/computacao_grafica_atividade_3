@@ -18,6 +18,8 @@ não colidir com o chão. Ao ser detectada qualquer uma dessas citadas, a simula
 
 Além disso, é possível mudar a camêra para obter visões diferentes do ambiente.
 
+![Avião](https://github.com/martinezguilherme/computacao_grafica_atividade_3/captura_de_tela.png)
+
 Controles:
     
     Up e Down: Aumenta e diminui respectivamente a velocidade do avião.
