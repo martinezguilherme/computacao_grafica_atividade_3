@@ -1,4 +1,4 @@
-# Atividade 1 de computação gráfica
+# Atividade 3 de computação gráfica
 
 ## Nome do desenvolvedor: Guilherme Gouveia Martinez
 ## RA: 11201720882
