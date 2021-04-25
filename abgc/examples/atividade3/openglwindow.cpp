@@ -403,7 +403,7 @@ void OpenGLWindow::renderCenario(glm:: vec3 m_deslocamento) {
   glUniform4fv(KaLoc, 1, &m_Ka.x);
   glUniform4fv(KdLoc, 1, &m_Kd.x);
   glUniform4fv(KsLoc, 1, &m_Ks.x);
-  m_cenario3d.render(m_trianglesToDraw);
+  m_cenario3d.render(m_trianglesToDraw_cenario);
 }
 
 
@@ -463,7 +463,7 @@ void OpenGLWindow::renderCidade(glm:: vec3 m_deslocamento) {
   glUniform4fv(KaLoc, 1, &m_Ka.x);
   glUniform4fv(KdLoc, 1, &m_Kd.x);
   glUniform4fv(KsLoc, 1, &m_Ks.x);
-  m_cidade3d.render(m_trianglesToDraw);
+  m_cidade3d.render(m_trianglesToDraw_cidade);
 }
 
 void OpenGLWindow::renderMeteoro(glm:: vec3 m_deslocamento) {
@@ -523,7 +523,7 @@ void OpenGLWindow::renderMeteoro(glm:: vec3 m_deslocamento) {
   glUniform4fv(KaLoc, 1, &m_Ka.x);
   glUniform4fv(KdLoc, 1, &m_Kd.x);
   glUniform4fv(KsLoc, 1, &m_Ks.x);
-  m_meteoro3d.render(m_trianglesToDraw);
+  m_meteoro3d.render(m_trianglesToDraw_meteoro);
 }
 
 void OpenGLWindow::renderSkybox() {
