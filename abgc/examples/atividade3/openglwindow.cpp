@@ -61,7 +61,7 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
   
   if (event.key.keysym.sym == SDLK_UP){
     //velocidade maxima
-    if(m_aviaoVelocidade <= 2.4f) {
+    if(m_aviaoVelocidade <= 2.6f) {
       m_aviaoVelocidade += 0.08f;
     }    
   }
@@ -120,6 +120,7 @@ void OpenGLWindow::initializeGL() {
   glClearColor(0, 0, 0, 1);
   glEnable(GL_DEPTH_TEST);
 
+  m_aviaoVelocidade = 0.1f;
 
   for (int i = 0; i < 12; i++)
   {
@@ -620,6 +621,8 @@ void OpenGLWindow::restart() {
   m_modelMatrix = glm::scale(m_modelMatrix, glm::vec3(0.3f));
   m_modelMatrix =  glm::translate(m_modelMatrix, glm::vec3(0, 0, 1));
 
+  m_aviaoVelocidade = 0.1f;
+
   //reinicia velocidade e posicao asteroides
   for(int i = 0; i < m_qtdAsteroides; i++){
     std::uniform_real_distribution<float> m_randomDistXZ{-8.0f, 8.0f};
@@ -749,7 +752,7 @@ void OpenGLWindow::checkCollisions() {
   //collision with asteroid
   for(int i = 0;i < m_qtdAsteroides;i++){
     if(glm::distance2(m_posicao_aviao,m_posicaoAsteroides[i]) < 0.1f){
-      printf("BATEU\n\n\n\n\n");
+      //printf("BATEU\n\n\n\n\n");
       m_gameData.m_state = State::GameOver;
       m_restartWaitTimer.restart();
     }
