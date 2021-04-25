@@ -10,52 +10,55 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
   glm::ivec2 mousePosition;
   SDL_GetMouseState(&mousePosition.x, &mousePosition.y);
 
-  if (m_aviaoVelocidade > 0){  // Keyboard events
-    if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-      if (event.key.keysym.sym == SDLK_s){
-        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(1, 0, 0));
-      }
-      if (event.key.keysym.sym == SDLK_w){
-        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(-1, 0, 0));
-      }
-      if (event.key.keysym.sym == SDLK_d){
-        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 1, 0));
-      }
-      if (event.key.keysym.sym == SDLK_a){
-        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, -1, 0));
-      }
-      if (event.key.keysym.sym == SDLK_q){
-        if (m_aviao_angulo >= 360){
-          m_aviao_angulo = 0;
+  if(m_gameData.m_state == State::Playing){
+    if (m_aviaoVelocidade > 0){  // Keyboard events
+      if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+        if (event.key.keysym.sym == SDLK_s){
+          m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(1, 0, 0));
         }
-        //m_aviao_angulo += m_aviao_anguloRotacaoPadrao;
+        if (event.key.keysym.sym == SDLK_w){
+          m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(-1, 0, 0));
+        }
+        if (event.key.keysym.sym == SDLK_d){
+          m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 1, 0));
+        }
+        if (event.key.keysym.sym == SDLK_a){
+          m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, -1, 0));
+        }
+        if (event.key.keysym.sym == SDLK_q){
+          if (m_aviao_angulo >= 360){
+            m_aviao_angulo = 0;
+          }
+          //m_aviao_angulo += m_aviao_anguloRotacaoPadrao;
 
-        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, 1));
-      }
-      if (event.key.keysym.sym == SDLK_e){
-        if (m_aviao_angulo < 0){
-          m_aviao_angulo = 360;
+          m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, 1));
         }
-        //m_aviao_angulo -= m_aviao_anguloRotacaoPadrao;
+        if (event.key.keysym.sym == SDLK_e){
+          if (m_aviao_angulo < 0){
+            m_aviao_angulo = 360;
+          }
+          //m_aviao_angulo -= m_aviao_anguloRotacaoPadrao;
 
-        m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, -1));
-      }
-      if (event.key.keysym.sym == SDLK_LEFT){
-        if (m_aviao_angulo < 0){
-          m_aviao_angulo = 360;
+          m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(m_aviao_anguloRotacaoPadrao), glm::vec3(0, 0, -1));
         }
-        m_aviao_angulo += m_aviao_anguloRotacaoPadrao;
-      }
-      if (event.key.keysym.sym == SDLK_RIGHT){
-        if (m_aviao_angulo < 0){
-          m_aviao_angulo = 360;
+        if (event.key.keysym.sym == SDLK_LEFT){
+          if (m_aviao_angulo < 0){
+            m_aviao_angulo = 360;
+          }
+          m_aviao_angulo += m_aviao_anguloRotacaoPadrao;
         }
-        m_aviao_angulo -= m_aviao_anguloRotacaoPadrao;
+        if (event.key.keysym.sym == SDLK_RIGHT){
+          if (m_aviao_angulo < 0){
+            m_aviao_angulo = 360;
+          }
+          m_aviao_angulo -= m_aviao_anguloRotacaoPadrao;
+        }
+        
+        
       }
-      
-      
     }
   }
+  
   if (event.key.keysym.sym == SDLK_UP){
     //velocidade maxima
     if(m_aviaoVelocidade <= 2.4f) {
@@ -125,6 +128,20 @@ void OpenGLWindow::initializeGL() {
     m_vetorPosicoesAleatorias[i] = numeroAleatorio;
   }
 
+  // m_posicaoAsteroides[0] = glm::vec3(0.5f,1.5f,0.7f);
+  // m_posicaoAsteroides[1] = glm::vec3(1.0f,1.5f,0.2f);
+  // m_posicaoAsteroides[2] = glm::vec3(0.2f,1.5f,0.6f);
+  // m_posicaoAsteroides[3] = glm::vec3(0.9f,1.5f,0.1f);
+  // m_posicaoAsteroides[4] = glm::vec3(0.1f,1.5f,0.5f);
+
+  for(int i = 0; i < m_qtdAsteroides; i++){
+    std::uniform_real_distribution<float> m_randomDistXZ{-8.0f, 8.0f};
+    std::uniform_real_distribution<float> m_randomDistY{1.0f, 5.0f};
+    std::uniform_real_distribution<float> m_randomDistV{0.1f, 0.3f};
+    m_posicaoAsteroides[i] = glm::vec3(m_randomDistXZ(m_randomEngine),m_randomDistY(m_randomEngine),m_randomDistXZ(m_randomEngine));
+    m_velocidadeAsteroides[i] = m_randomDistV(m_randomEngine);
+  }
+
   // Create programs
   for (const auto& name : m_shaderNames) {
     auto path{getAssetsPath() + "shaders/" + name};
@@ -134,6 +151,7 @@ void OpenGLWindow::initializeGL() {
 
   // Load default model
   carregarCenario(getAssetsPath() + "Street environment_V01.obj");
+  carregarMeteoro(getAssetsPath() + "10464_Asteroid_v1_Iterations-2.obj");
   loadModel(getAssetsPath() + "11805_airplane_v2_L2.obj");
   carregarCidade(getAssetsPath() + "Camellia City.obj");
 
@@ -143,6 +161,9 @@ void OpenGLWindow::initializeGL() {
   // Initial trackball spin
   m_trackBallModel.setAxis(glm::normalize(glm::vec3(1, 1, 1)));
   m_trackBallModel.setVelocity(0.0001f);
+
+  // m_modelMatrix_meteoro = m_modelMatrix_meteoro = glm::scale(m_modelMatrix_meteoro, glm::vec3(0.6f));
+  // m_modelMatrix_meteoro =  glm::translate(m_modelMatrix_meteoro, glm::vec3(0, 0, 1));
 
   m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(180.0f), glm::vec3(0, 1, 0));
   m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(90.0f), glm::vec3(-1, 0, 0));
@@ -232,6 +253,19 @@ void OpenGLWindow::carregarCidade(std::string_view path) {
   m_shininess = m_cidade3d.getShininess();
 }
 
+void OpenGLWindow::carregarMeteoro(std::string_view path) {
+  m_meteoro3d.loadDiffuseTexture(getAssetsPath() + "maps/10464_Asteroid_v1_diffuse.jpg");
+  m_meteoro3d.loadNormalTexture(getAssetsPath() + "maps/10464_Asteroid_v1_diffuse.jpg");
+  m_meteoro3d.loadFromFile(path);
+  m_meteoro3d.setupVAO(m_programs.at(m_currentProgramIndex));
+  m_trianglesToDraw_meteoro= m_meteoro3d.getNumTriangles();
+  // Use material properties from the loaded model
+  m_Ka = m_meteoro3d.getKa();
+  m_Kd = m_meteoro3d.getKd();
+  m_Ks = m_meteoro3d.getKs();
+  m_shininess = m_meteoro3d.getShininess();
+}
+
 void OpenGLWindow::paintGL() {
   update();
 
@@ -289,6 +323,8 @@ void OpenGLWindow::paintGL() {
   glUniform4fv(KaLoc, 1, &m_Ka.x);
   glUniform4fv(KdLoc, 1, &m_Kd.x);
   glUniform4fv(KsLoc, 1, &m_Ks.x);
+
+  //renderMeteoro(glm::vec3(0.0f, 0.0f, 0.0f));
   m_model.render(m_trianglesToDraw);
 
   for (int i = 0; i < 11; i = i + 2)
@@ -298,8 +334,15 @@ void OpenGLWindow::paintGL() {
     renderCenario(glm:: vec3(entrada1, -1.5f, entrada2));
   }
 
+  for(const auto index: m_posicaoAsteroides)
+  {
+    renderMeteoro(glm::vec3(index.x, index.y, index.z));
+  }
+
+  //renderMeteoro(glm::vec3(0.0f, 0.0f, 0.0f));
+
   renderCidade(glm:: vec3(0.0f, 0.0f, 0.0f));
-  
+
   renderSkybox();
 
 }
@@ -422,6 +465,66 @@ void OpenGLWindow::renderCidade(glm:: vec3 m_deslocamento) {
   m_cidade3d.render(m_trianglesToDraw);
 }
 
+void OpenGLWindow::renderMeteoro(glm:: vec3 m_deslocamento) {
+  // Use currently selected program
+  const auto program{m_programs.at(m_currentProgramIndex)};
+  glUseProgram(program);
+
+  // Get location of uniform variables
+  GLint viewMatrixLoc{glGetUniformLocation(program, "viewMatrix")};
+  GLint projMatrixLoc{glGetUniformLocation(program, "projMatrix")};
+  GLint modelMatrixLoc{glGetUniformLocation(program, "modelMatrix")};
+  GLint normalMatrixLoc{glGetUniformLocation(program, "normalMatrix")};
+  GLint lightDirLoc{glGetUniformLocation(program, "lightDirWorldSpace")};
+  GLint shininessLoc{glGetUniformLocation(program, "shininess")};
+  GLint IaLoc{glGetUniformLocation(program, "Ia")};
+  GLint IdLoc{glGetUniformLocation(program, "Id")};
+  GLint IsLoc{glGetUniformLocation(program, "Is")};
+  GLint KaLoc{glGetUniformLocation(program, "Ka")};
+  GLint KdLoc{glGetUniformLocation(program, "Kd")};
+  GLint KsLoc{glGetUniformLocation(program, "Ks")};
+  GLint diffuseTexLoc{glGetUniformLocation(program, "diffuseTex")};
+  GLint normalTexLoc{glGetUniformLocation(program, "normalTex")};
+  GLint cubeTexLoc{glGetUniformLocation(program, "cubeTex")};
+  GLint mappingModeLoc{glGetUniformLocation(program, "mappingMode")};
+  GLint texMatrixLoc{glGetUniformLocation(program, "texMatrix")};
+
+  // Set uniform variables used by every scene object
+  glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
+  glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
+  glUniform1i(diffuseTexLoc, 0);
+  glUniform1i(normalTexLoc, 1);
+  glUniform1i(cubeTexLoc, 2);
+  glUniform1i(mappingModeLoc, m_mappingMode);
+
+
+  glm::mat3 texMatrix{m_trackBallLight.getRotation()};
+  glUniformMatrix3fv(texMatrixLoc, 1, GL_TRUE, &texMatrix[0][0]);
+
+  auto lightDirRotated{m_trackBallLight.getRotation() * m_lightDir};
+  glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
+  glUniform4fv(IaLoc, 1, &m_Ia.x);
+  glUniform4fv(IdLoc, 1, &m_Id.x);
+  glUniform4fv(IsLoc, 1, &m_Is.x);
+  glm::mat4 m_modelMatrix_meteoro{1.0f};
+  m_modelMatrix_meteoro = glm::translate(m_modelMatrix_meteoro, m_deslocamento);
+  //m_modelMatrix_meteoro = glm::scale(m_modelMatrix_meteoro, glm::vec3(30.0f,30.0f,30.0f));
+  m_modelMatrix_meteoro = glm::scale(m_modelMatrix_meteoro, glm::vec3(0.5f,0.5f,0.5f));
+
+  // Set uniform variables of the current object
+  glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix_meteoro[0][0]);
+
+  auto modelViewMatrix{glm::mat3(m_viewMatrix * m_modelMatrix_meteoro)};
+  glm::mat3 normalMatrix{glm::inverseTranspose(modelViewMatrix)};
+  glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
+
+  glUniform1f(shininessLoc, m_shininess);
+  glUniform4fv(KaLoc, 1, &m_Ka.x);
+  glUniform4fv(KdLoc, 1, &m_Kd.x);
+  glUniform4fv(KsLoc, 1, &m_Ks.x);
+  m_meteoro3d.render(m_trianglesToDraw);
+}
+
 void OpenGLWindow::renderSkybox() {
   glUseProgram(m_skyProgram);
 
@@ -508,7 +611,24 @@ void OpenGLWindow::restart() {
   m_gameData.m_state = State::Playing;
 
   //implementar jeito de reiniciar o jogo
-  initializeGL();
+  // initializeGL();
+
+  //reinicia posicao Aviao
+  m_modelMatrix = glm::mat4{1.0f};
+  m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(180.0f), glm::vec3(0, 1, 0));
+  m_modelMatrix = glm::rotate(m_modelMatrix, glm::radians(90.0f), glm::vec3(-1, 0, 0));
+  m_modelMatrix = glm::scale(m_modelMatrix, glm::vec3(0.3f));
+  m_modelMatrix =  glm::translate(m_modelMatrix, glm::vec3(0, 0, 1));
+
+  //reinicia velocidade e posicao asteroides
+  for(int i = 0; i < m_qtdAsteroides; i++){
+    std::uniform_real_distribution<float> m_randomDistXZ{-8.0f, 8.0f};
+    std::uniform_real_distribution<float> m_randomDistY{1.0f, 5.0f};
+    std::uniform_real_distribution<float> m_randomDistV{0.1f, 0.3f};
+    m_posicaoAsteroides[i] = glm::vec3(m_randomDistXZ(m_randomEngine),m_randomDistY(m_randomEngine),m_randomDistXZ(m_randomEngine));
+    m_velocidadeAsteroides[i] = m_randomDistV(m_randomEngine);
+  }
+
 }
 
 void OpenGLWindow::update() {
@@ -531,7 +651,21 @@ void OpenGLWindow::update() {
     //Declaracao n servia pra nada
     //float avancox = m_aviaoVelocidade*(cos(m_aviaoAnguloR) - sin(m_aviaoAnguloR));
     //avancox = m_aviaoVelocidade*deltaTime;
-    
+
+    std::uniform_real_distribution<float> m_randomDistXZ{-3.0f, 3.0f};
+
+    for(int i = 0;i < m_qtdAsteroides;i++){
+      // if(i == 0) {
+      //   printf("Meteoro 0 posicao: {%f,%f,%f}\n",m_posicaoAsteroides[i].x,m_posicaoAsteroides[i].y,m_posicaoAsteroides[i].z);
+      // }
+      if(m_posicaoAsteroides[i].y < -2.0f){
+        m_posicaoAsteroides[i].x = m_randomDistXZ(m_randomEngine);
+        m_posicaoAsteroides[i].z = m_randomDistXZ(m_randomEngine);
+        m_posicaoAsteroides[i].y = 5.0f;
+      }
+      m_posicaoAsteroides[i].y = m_posicaoAsteroides[i].y-m_velocidadeAsteroides[i]*deltaTime;
+    }
+
     float avancox = m_aviaoVelocidade*deltaTime;
     
     m_modelMatrix = glm::translate(m_modelMatrix, glm::vec3(
@@ -610,6 +744,15 @@ void OpenGLWindow::checkCollisions() {
   if(m_posicao_aviao.y < -1.5f){
     m_gameData.m_state = State::GameOver;
     m_restartWaitTimer.restart();
+  }
+
+  //collision with asteroid
+  for(int i = 0;i < m_qtdAsteroides;i++){
+    if(glm::distance2(m_posicao_aviao,m_posicaoAsteroides[i]) < 0.1f){
+      printf("BATEU\n\n\n\n\n");
+      m_gameData.m_state = State::GameOver;
+      m_restartWaitTimer.restart();
+    }
   }
 
   //collision with asteroid

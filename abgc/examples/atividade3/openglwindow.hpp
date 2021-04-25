@@ -30,9 +30,11 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   Model m_model;
   Model m_cenario3d;
   Model m_cidade3d;
+  Model m_meteoro3d;
   int m_trianglesToDraw{};
   int m_trianglesToDraw_cenario{};
   int m_trianglesToDraw_cidade{};
+  int m_trianglesToDraw_meteoro{};
 
   TrackBall m_trackBallModel;
   TrackBall m_trackBallLight;
@@ -47,6 +49,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::mat4 m_modelMatrixOriginal{1.0f};
   glm::mat4 m_modelMatrix_cenario{1.0f};
   glm::mat4 m_modelMatrix_cidade{1.0f};
+  glm::mat4 m_modelMatrix_meteoro{1.0f};
   glm::mat4 m_viewMatrix{1.0f};
   glm::mat4 m_projMatrix{1.0f};
 
@@ -90,6 +93,17 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::vec4 m_Ks_cidade;
   float m_shininess_cidade{};
 
+  // Luz e materiais meteoro
+  glm::vec4 m_lightDir_meteoro{-1.0f, -1.0f, -1.0f, 0.0f};
+  glm::vec4 m_Ia_meteoro{1.0f};
+  glm::vec4 m_Id_meteoro{1.0f};
+  glm::vec4 m_Is_meteoro{1.0f};
+  glm::vec4 m_Ka_meteoro;
+  glm::vec4 m_Kd_meteoro;
+  glm::vec4 m_Ks_meteoro;
+  float m_shininess_meteoro{};
+
+
   // Cenário
   int m_vetorPosicoesAleatorias[12];
   
@@ -105,9 +119,9 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   int m_aviaoCameraCinematica = 0;
 
   // Asteroides
-  //int const qtd_asteroides = 20;
-  float const m_velocidadeAsteroides = 0.5f;
-  glm::vec3 m_asteroides[5];
+  int static const  m_qtdAsteroides = 30;
+  float m_velocidadeAsteroides [m_qtdAsteroides];
+  glm::vec3 m_posicaoAsteroides[m_qtdAsteroides];
 
   // Skybox
   const std::string m_skyShaderName{"skybox"};
@@ -138,14 +152,18 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   };
   // clang-format on
 
+  std::default_random_engine m_randomEngine;
+
   void initializeSkybox();
   void renderSkybox();
   void renderCenario(glm:: vec3 m_deslocamento);
   void renderCidade(glm:: vec3 m_deslocamento);
+  void renderMeteoro(glm:: vec3 m_deslocamento);
   void terminateSkybox();
   void loadModel(std::string_view path);
   void carregarCenario(std::string_view path);
   void carregarCidade(std::string_view path);
+  void carregarMeteoro(std::string_view path);
   void checkCollisions();
   void update();
   void restart();
