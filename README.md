@@ -16,6 +16,8 @@ Esta aplicação consite na simulação de 3 objetos:
 colidir com os meteóros que são constantemente renderizados. Além disso, também é necessário
 não colidir com o chão. Ao ser detectada qualquer uma dessas citadas, a simulação é reiniciada.
 
+Além disso, é possível mudar a camêra para obter visões diferentes do ambiente.
+
 Controles:
     
     Up e Down: Aumenta e diminui respectivamente a velocidade do avião.
